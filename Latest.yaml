@@ -29,7 +29,7 @@ blueprint:
     room_name:
       name: Room Name
       description: The friendly name of the room (e.g., "Living Room").
-      example: "Living Room"
+      default: "Living Room"
     last_cleaned_datetime:
       name: Last Cleaned Helper
       description: The input_datetime entity that tracks when the room was last cleaned.
