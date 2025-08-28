@@ -1,0 +1,1 @@
+# hass-clean-room-automation
