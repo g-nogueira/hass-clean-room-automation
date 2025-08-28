@@ -14,35 +14,35 @@ blueprint:
     - If you leave home again during the 24-hour snooze period, the snooze will be cancelled and a new reminder will be sent.
   domain: automation
   input:
-    person_entity:
+    in_person_entity:
       name: Person
       description: The person to monitor for leaving home.
       selector:
         entity:
           domain: person
-    notify_device:
+    in_notify_device:
       name: Notification Device
       description: The device to send the notification to.
       selector:
         device:
           integration: mobile_app
-    room_name:
+    in_room_name:
       name: Room Name
       description: The friendly name of the room (e.g., "Living Room").
       default: "Living Room"
-    last_cleaned_datetime:
+    in_last_cleaned_datetime:
       name: Last Cleaned Helper
       description: The input_datetime entity that tracks when the room was last cleaned.
       selector:
         entity:
           domain: input_datetime
-    clean_button:
+    in_clean_button:
       name: Clean Button
       description: The button to press to start cleaning the room.
       selector:
         entity:
           domain: button
-    overdue_days:
+    in_overdue_days:
       name: Overdue Days
       description: The number of days after which cleaning is considered overdue.
       default: 1
@@ -119,3 +119,10 @@ action:
           - service: event.fire
             data:
               event_type: "request_{{ room_name | slugify }}_clean_check"
+variables:
+  person_entity: !input in_person_entity
+  notify_device: !input in_notify_device
+  room_name: !input in_room_name
+  last_cleaned_datetime: !input in_last_cleaned_datetime
+  clean_button: !input in_clean_button
+  overdue_days: !input in_overdue_days
