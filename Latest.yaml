@@ -56,7 +56,7 @@ blueprint:
 mode: restart
 trigger:
   - platform: zone
-    entity_id:!input person_entity
+    entity_id: !input person_entity
     zone: zone.home
     event: leave
   # This trigger is now used by the self-contained snooze action.
@@ -64,7 +64,7 @@ trigger:
     event_type: "request_{{ room_name | slugify }}_clean_check"
 condition:
   - condition: state
-    entity_id:!input person_entity
+    entity_id: !input person_entity
     state: "not_home"
   - condition: template
     value_template: >-
@@ -77,7 +77,7 @@ action:
       # This dynamically gets the notify service associated with the selected device.
       notify_service: >
         {{ 'notify.mobile_app_' ~ device_attr(!input notify_device, 'name') | slugify }}
-  - service:!input notify_service
+  - service: !input notify_service
     data:
       message: "The {{ room_name }} cleaning is overdue. Start cleaning now?"
       title: "🧹 Time to Clean?"
@@ -100,11 +100,11 @@ action:
         sequence:
           - service: button.press
             target:
-              entity_id:!input clean_button
+              entity_id: !input clean_button
       - conditions: "{{ wait.trigger.event.data.action == 'SNOOZE_CLEANING' }}"
         sequence:
           # RECOMMENDATION: Provide immediate feedback to the user that the snooze was successful.
-          - service:!input notify_service
+          - service: !input notify_service
             data:
               message: "OK, I'll remind you about the {{ room_name }} again in 24 hours."
               data:
