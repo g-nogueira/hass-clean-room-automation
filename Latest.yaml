@@ -56,7 +56,7 @@ blueprint:
 mode: restart
 trigger:
   - platform: zone
-    entity_id: person_entity
+    entity_id: {{person_entity}}
     zone: zone.home
     event: leave
   # This trigger is now used by the self-contained snooze action.
