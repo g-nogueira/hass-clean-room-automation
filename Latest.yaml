@@ -1,0 +1,93 @@
+blueprint:
+  name: Interactive Cleaning Reminder on Leave
+  description: When leaving home, if a room's cleaning is overdue, sends an actionable notification. Includes a 24h snooze option.
+  domain: automation
+  input:
+    person_entity:
+      name: Person
+      description: The person to monitor for leaving home.
+      selector:
+        entity:
+          domain: person
+    notify_device:
+      name: Notification Device
+      description: The device to send the notification to.
+      selector:
+        device:
+          integration: mobile_app
+    room_name:
+      name: Room Name
+      description: The name of the room (e.g., "Living Room").
+      example: "Living Room"
+    last_cleaned_datetime:
+      name: Last Cleaned Helper
+      description: The input_datetime entity that tracks when the room was last cleaned.
+      selector:
+        entity:
+          domain: input_datetime
+    clean_button:
+      name: Clean Button
+      description: The button to press to start cleaning the room.
+      selector:
+        entity:
+          domain: button
+    overdue_days:
+      name: Overdue Days
+      description: The number of days after which cleaning is considered overdue.
+      default: 1
+      selector:
+        number:
+          min: 1
+          max: 30
+          unit_of_measurement: days
+
+# Automation Logic
+mode: restart
+trigger:
+  - platform: zone
+    entity_id: !input person_entity
+    zone: zone.home
+    event: leave
+  - platform: event
+    event_type: "request_{{ room_name | slugify }}_clean_check"
+condition:
+  - condition: state
+    entity_id: !input person_entity
+    state: "not_home"
+  - condition: template
+    value_template: >-
+      {{ now() - (states(!input last_cleaned_datetime) |
+      as_datetime(default=now() - timedelta(days=99)) | as_local) >
+      timedelta(days=!input overdue_days) }}
+action:
+  - service: notify.notify
+    target:
+      device_id: !input notify_device
+    data:
+      message: "The {{ room_name }} cleaning is overdue. Start cleaning now?"
+      title: "🧹 Time to Clean?"
+      data:
+        tag: "{{ context.id }}"
+        actions:
+          - action: START_CLEANING
+            title: "✅ Yes, Clean It"
+          - action: SNOOZE_CLEANING
+            title: "⏰ Snooze 24h"
+  - wait_for_trigger:
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          tag: "{{ context.id }}"
+    timeout: "01:00:00"
+    continue_on_timeout: false
+  - choose:
+      - conditions: "{{ wait.trigger.event.data.action == 'START_CLEANING' }}"
+        sequence:
+          - service: button.press
+            target:
+              entity_id: !input clean_button
+      - conditions: "{{ wait.trigger.event.data.action == 'SNOOZE_CLEANING' }}"
+        sequence:
+          - service: script.snooze_clean_reminder
+            data:
+              event_name: "request_{{ room_name | slugify }}_clean_check"
