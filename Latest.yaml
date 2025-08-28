@@ -100,7 +100,7 @@ action:
         sequence:
           - service: button.press
             target:
-              entity_id: clean_button
+              entity_id: '{{clean_button}}'
       - conditions: "{{ wait.trigger.event.data.action == 'SNOOZE_CLEANING' }}"
         sequence:
           # Provide immediate feedback to the user that the snooze was successful.
