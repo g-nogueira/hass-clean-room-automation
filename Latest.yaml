@@ -56,7 +56,7 @@ blueprint:
 mode: restart
 trigger:
   - platform: zone
-    entity_id:!input person_entity
+    entity_id: !input person_entity
     zone: zone.home
     event: leave
   # This trigger is now used by the self-contained snooze action.
@@ -64,7 +64,7 @@ trigger:
     event_type: "request_{{ room_name | slugify }}_clean_check"
 condition:
   - condition: state
-    entity_id:!input person_entity
+    entity_id: !input person_entity
     state: "not_home"
   - condition: template
     value_template: >-
@@ -100,7 +100,7 @@ action:
         sequence:
           - service: button.press
             target:
-              entity_id:!input clean_button
+              entity_id: !input clean_button
       - conditions: "{{ wait.trigger.event.data.action == 'SNOOZE_CLEANING' }}"
         sequence:
           # Provide immediate feedback to the user that the snooze was successful.
